@@ -1,3 +1,4 @@
+from math import sqrt, floor
 import os
 from time import sleep
 from PIL import Image, ImageStat
@@ -5,13 +6,19 @@ from scipy import spatial
 
 cwd = os.path.abspath(os.path.dirname(__file__))
 #cwd = "/Users/haochen/Documents/tiled-image"
-
+Image.MAX_IMAGE_PIXELS = 260000000   #210 mp
+DESIRED_IMG_SIZE = 250000000   #200 mp                                                                                      
 cell_size = (40, 40)
 resize_tag = "resized_"
 
+# break into get file
+# validate images
+# scaling/checking 
+# comparrision
+# windowing
+
 def main():
  	# assume jpgs for now
-	
 	res_imgs_dir_path = os.path.abspath(os.path.join(cwd, "res_images"))
 	target_img_dir_path = os.path.abspath(os.path.join(cwd, "target"))
 
@@ -24,6 +31,7 @@ def main():
 
 	print("creating tiles and profiling their color...")
 	# extract median color of each image and reize each according to cell size
+	
 	for img_name in res_imgs_list:
 		img_path = os.path.join(res_imgs_dir_path, img_name)
 		img = Image.open(img_path)
@@ -48,7 +56,13 @@ def main():
 	target_img_path = os.path.join(target_img_dir_path, target_img_name[0])
 
 	target_img = Image.open(target_img_path)
-	#target_img = target_img.resize((2000, 2000))
+
+	#resize target image 
+	original_pixel_count = target_img.size[0]*target_img.size[1]
+	multiplier = DESIRED_IMG_SIZE//(target_img.size[0]*target_img.size[1])
+	scale_factor = floor(sqrt(multiplier))
+
+	target_img = target_img.resize((target_img.size[0]*scale_factor, target_img.size[1]*scale_factor))
 	#create canvas for composite image
 	composite_img = Image.new('RGB', ((target_img.width//cell_size[0])*cell_size[0], (target_img.height//cell_size[1])*cell_size[1]))
 	print("scanning target image and creating the composite image...")
